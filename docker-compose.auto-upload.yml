@@ -1,0 +1,13 @@
+services:
+  markitdown-auto-upload:
+    build:
+      context: .
+      dockerfile: Dockerfile.auto-upload
+    env_file:
+      - .env.auto-upload
+    volumes:
+      - ./data/input:/data/input
+      - ./data/export:/data/export
+      - ./data/archive:/data/archive
+      - ./data/error:/data/error
+    restart: unless-stopped

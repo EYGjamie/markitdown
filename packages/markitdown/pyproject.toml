@@ -49,6 +49,7 @@ all = [
   "azure-ai-documentintelligence",
   "azure-identity",
 ]
+service = ["watchdog"]
 pptx = ["python-pptx"]
 docx = ["mammoth~=1.11.0", "lxml"]
 xlsx = ["pandas", "openpyxl"]
@@ -69,6 +70,7 @@ path = "src/markitdown/__about__.py"
 
 [project.scripts]
 markitdown = "markitdown.__main__:main"
+markitdown-auto-upload = "markitdown.auto_upload.__main__:main"
 
 [tool.hatch.envs.default]
 features = ["all"]

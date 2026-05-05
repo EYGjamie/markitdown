@@ -209,6 +209,70 @@ docker build -t markitdown:latest .
 docker run --rm -i markitdown:latest < ~/your-file.pdf > output.md
 ```
 
+## Auto-upload Service
+
+This repository also includes a long-running Docker service for folder-based ingestion into Outline.
+
+The service:
+
+- watches `input/` for new files
+- waits until each file is stable on disk
+- converts it to Markdown with MarkItDown
+- writes the Markdown output to `export/`
+- uploads the Markdown as a new Outline document
+- moves the original file to `archive/` on success
+- moves the original file to `error/` if conversion or upload fails
+
+If multiple files arrive at the same time they are queued and processed in order.
+
+### Outline setup
+
+1. In Outline, create or confirm the target collection exists.
+   For your setup this is `Auto-Upload`.
+2. Create an API token under `Settings -> API & Apps`.
+3. Use the Outline base URL for your self-hosted instance, for example:
+   `https://lernen.rohner-dozent.de`
+4. Because API tokens grant full access for the creating user, store the token only in environment files or secrets.
+
+### Local configuration
+
+Create the runtime folders:
+
+```sh
+mkdir -p data/input data/export data/archive data/error
+```
+
+Create the env file from the example:
+
+```sh
+cp .env.auto-upload.example .env.auto-upload
+```
+
+Then update `.env.auto-upload` with your real Outline token. If you already pasted a token into chat or another shared place, rotate it before production use.
+
+### Start the service
+
+```sh
+docker compose -f docker-compose.auto-upload.yml up -d --build
+```
+
+Drop supported files into `data/input/`. The worker keeps running and waits for more input after each job.
+
+### Implementation details
+
+- Docker image: `Dockerfile.auto-upload`
+- Compose file: `docker-compose.auto-upload.yml`
+- Entrypoint: `markitdown-auto-upload`
+- Required env vars:
+  - `OUTLINE_BASE_URL`
+  - `OUTLINE_API_TOKEN`
+  - `OUTLINE_COLLECTION_NAME`
+- Default folders inside the container:
+  - `/data/input`
+  - `/data/export`
+  - `/data/archive`
+  - `/data/error`
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
